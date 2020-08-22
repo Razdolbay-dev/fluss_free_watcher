@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>{% block title%} Авторизация | HydraProject {% endblock %}</title>
+  </head>
+  <body>
+
+ <div class="card" style="display: block; margin: 0 auto; text-align: center; max-width: 600px; margin-top: 50px;">
+  <div class="card-header">
+    Авторизация
+  </div>
+  <div class="card-body">
+    <form id="add_form" method="POST">
+            {% csrf_token %}
+            {{form}}
+            <button form="add_form" type="submit" class="btn btn-outline-success mt-5">Войти</button>
+    </form>
+  </div>
+</div> 
+
+</body>

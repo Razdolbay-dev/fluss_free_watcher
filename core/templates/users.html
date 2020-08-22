@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %} Список пользователей {% endblock %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% if request.user.is_authenticated and request.user.is_superuser  %}
+{% if messages  %} 
+<div class="alert alert-success mt-2" role="alert">
+  {% for m in messages %}
+    {{m}}
+  {% endfor %}
+</div>
+{% endif %}
+<!--Начало блока Update-->
+{% if update %}
+<h3 class="mt-2">Редактирование : {{get_camera.title}}<h3>
+    <form id="update_data" method="post">
+        {% csrf_token %}
+        {{form|crispy}}
+    </form>
+<a class="btn btn-primary mt-2 float-right" href="{% url 'cameras' %}">Вернуться назад</a>
+<button form="update_data" type="submit" class="btn btn-success mt-2">Обновить</button>
+{% else %}
+<!--Конец блока Update-->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Добавить пользователя
+</button>
+<table class="table table-striped mt-2">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Имя</th>
+        <th scope="col">Группа</th>
+        <th scope="col">DVR</th>
+        <th scope="col">Редактировать</th>
+        <th scope="col">Удалить</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for usr in list_users%}
+              <tr>
+                <td>{{usr.id|truncatechars:"30"}}</td>
+                <td>{{usr.username|truncatechars:"30"}}</td>
+                <td>{% for grp in usr.members.all %} {{ grp.title }} {% endfor %}</td>
+                <td>{{usr.dvr|truncatechars:"40"}}</td>
+                <td><a class="badge badge-success" href="{% url 'update_usr_page' usr.id %}">Редактировать</a></td>
+                <td>
+                  <form id="delete{{usr.id}}" action="{% url 'delusr' usr.id %}" method="post"> {% csrf_token %} </form>
+                  <a href="javascript:void()" onclick="delete_question{{usr.id}}()">Удалить?</a>
+                  <script>
+                    function delete_question{{usr.id}}(){
+                      if (confirm("Хорошо подумал?")) {
+                        document.getElementById('delete{{usr.id}}').submit()
+                      }
+                    }
+                  </script>
+                </td>
+              </tr>
+        {% endfor %} 
+    </tbody>
+</table> 
+{% endif %}
+{% include 'includes/modal.html' %}
+{% else %}
+{% include 'includes/error.html' %}
+{% endif %}
+{% endblock %}

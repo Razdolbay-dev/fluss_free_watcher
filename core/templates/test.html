@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="accordion" id="accordionExample">
+    <div class="card">
+      <div class="card-header" id="headingOne">
+        <h2 class="mb-0">
+          <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            Публичные камеры
+          </button>
+        </h2>
+      </div>
+      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+        <div class="card-body">
+            <div class="row row-cols-4">
+                {% for cam in list_cameras %}
+                {% if cam.camera_type == "PU" %}
+                    {% include  'includes/cam_template.html'%}
+                {% endif %}
+                {% endfor %}
+            </div>        
+        </div>
+      </div>
+    </div>
+
+    {% if request.user.is_superuser %} 
+    <div class="card">
+      <div class="card-header" id="headingTwo">
+        <h2 class="mb-0">
+          <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Прочие камеры
+          </button>
+        </h2>
+      </div>
+      <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionExample">
+        <div class="card-body">
+            <div class="row row-cols-4">
+                {% for cam in list_cameras %}
+                {% if cam.camera_type == "PR" %}
+                  {% include  'includes/cam_template.html'%}
+                {% endif %}
+                {% endfor %}
+            </div> 
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>    
+
+{% endblock %}

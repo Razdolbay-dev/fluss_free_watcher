@@ -1,0 +1,303 @@
+from django.shortcuts import render, redirect
+from django.urls import reverse, reverse_lazy
+from django.contrib import messages
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
+from django.core.exceptions import ObjectDoesNotExist
+from .models import *
+from .forms import *
+
+import transliterate
+import requests
+import os
+import sys
+import locale
+
+# Create your views here.
+def home(request):
+    list_cameras = Cameras.objects.all()
+    context = {
+        'list_cameras':list_cameras
+    }
+    template = 'index.html'
+    def get_client_ip(request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+# Забираем IP клиента и авторизируем если находим в базе
+    if request.user == AnonymousUser():
+        try:
+            ip = get_client_ip(request)
+            user = CustomUser.objects.get(ip_address=ip) #<-- Проверяет входит ли ip тот что мы получили
+            login(request,user)
+            return render(request, template, context)
+        except ObjectDoesNotExist:
+            return render(request, template, context)
+    else:
+        return render(request, template, context)
+    
+class DVR(DetailView):
+    model = Cameras
+    template_name = 'detail.html'
+    context_object_name = 'get_cameras'
+
+class CustomSuccessMessageMixin:
+    @property
+    def success_msg(self):
+        return False
+    def form_valid(self,form):
+        messages.success(self.request, self.success_msg)
+        return super().form_valid(form)
+    def get_success_url(self):
+        return '%s?id=%s' % (self.success_url, self.object.id)
+
+#Камеры 
+class AddCamera(CustomSuccessMessageMixin, CreateView):
+    model = Cameras
+    template_name = 'cameras.html'
+    form_class = CameraForm
+    success_url = reverse_lazy('cameras')
+    success_msg = 'Камера добавлена'
+    def get_context_data(self,**kwargs):
+        kwargs['list_cameras'] = Cameras.objects.all().order_by('title')
+        return super().get_context_data(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            model = Storage
+            slug = transliterate.translit(request.POST['title'].lower().replace(' ', '_'), reversed=True)
+            path = Storage.objects.get(id=int(request.POST['storage']))
+            url = request.POST['url']
+            dvr = request.POST['dvr']
+            title = transliterate.translit(request.POST['title'], reversed=True)
+            data = 'stream '+ str(slug) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (dvr) +' ; }'
+            response = requests.post('http://localhost:8080/flussonic/api/config/stream_create', data=data, auth=('flussonic', 'Ff61MvET'))
+            view = form.save()
+            view.save()
+            return HttpResponseRedirect('/cameras')
+        return render(request, self.template_name, {'form': form})
+
+class UpdateCamera(CustomSuccessMessageMixin,View):
+    model = Cameras
+    template_name = 'cameras.html'
+    form_class = CameraForm
+    success_url = reverse_lazy('cameras')
+    success_msg = 'Камера успешно обновлена'
+
+    def get(self,request, slug):
+        cam = Cameras.objects.get(slug__iexact=slug)
+        form = CameraForm(instance=cam)
+        template = 'editcam.html'
+        context = {
+            'form': form,
+            'cam': cam
+        }
+        return render(request, template, context)
+
+    def post(self, request, slug):
+        cam = Cameras.objects.get(slug__iexact=slug)
+        form = CameraForm(request.POST, instance=cam)
+        if form.is_valid():
+            model = Storage, Settings
+            for e in Settings.objects.filter(id=1):
+                a = e.user_f
+                b = e.pass_f
+                c = e.port_f
+
+            slug = transliterate.translit(request.POST['title'].lower().replace(' ', '_'), reversed=True)
+            path = Storage.objects.get(id=int(request.POST['storage']))
+            url = request.POST['url']
+            date = request.POST['dvr']
+            title = transliterate.translit(request.POST['title'], reversed=True)
+
+            data = 'stream '+ str(slug) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (date) +' ; }'
+            auth = "'" +str(a) + "','" + str(b) +"'"
+            response = requests.post('http://localhost:8080/flussonic/api/config/stream_create', data=data, auth=(a + ' , ' + b))
+            form.save()
+            print(auth)
+            return HttpResponseRedirect('/cameras')
+        return render(request, self.template_name, success_msg, {'form': form})
+
+class DelCamera(View):
+    model = Cameras
+    def get(self, request, slug):
+        cam = Cameras.objects.get(slug__iexact=slug)
+        template = 'delete.html'
+        context = {
+            'cam': cam
+        }
+        return render(request, template, context)
+
+    def post(self, request, slug):
+        cam = Cameras.objects.get(slug__iexact=slug)
+        data = slug
+        response = requests.post('http://localhost:8080/flussonic/api/config/stream_delete', data=data, auth=('flussonic', 'Ff61MvET'))
+        cam.delete()
+        print(data)
+        return redirect(reverse('cameras'))
+
+class myHome(ListView):
+    model = Cameras
+    template_name = 'myhome.html'
+    context_object_name = 'list_cameras'
+#Настройки
+class Setting(View):
+    model = Settings, Storage
+    def get(self,request, id):
+        setting = Settings.objects.get(id=1)
+        storage = Storage.objects.all()
+        form = SettingsForm(instance=setting)
+        template = 'settings.html'
+        context = {
+            'form': form,
+            'setting': setting,
+            'storage': storage
+        }
+        return render(request, template, context)
+
+    def post(self, request, id):
+        setting = Settings.objects.get(id=1)
+        form = SettingsForm(request.POST, instance=setting)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/')
+        return render(request, self.template_name, success_msg, {'form': form})
+
+#Хранилища
+
+##Login/Logout пользователя
+class HydraLoginView(LoginView):
+    template_name = 'login.html'
+    form_class = AuthUserForm
+    success_url = reverse_lazy('home')
+    def get_success_url(self):
+        return self.success_url
+
+class HydraLogout(LogoutView):
+    next_page = reverse_lazy('home')
+
+#группы по анологии с тэгами
+
+class DelGRP(DeleteView):
+    model = CustomGroup
+    template_name = 'groups.html'
+    success_url = reverse_lazy('groups')
+    success_msg = 'Группа удалена'
+    
+    def post(self,request,*args,**kwargs):
+        messages.success(self.request, self.success_msg)
+        return super().post(request)
+
+class AddGRP(CustomSuccessMessageMixin, CreateView):
+    model = CustomGroup
+    template_name = 'groups.html'
+    form_class = GroupForm
+    success_url = reverse_lazy('groups')
+    success_msg = 'Группа добавлена'
+    def get_context_data(self,**kwargs):
+        kwargs['list_groups'] = CustomGroup.objects.all().order_by('title')
+        return super().get_context_data(**kwargs)
+
+class UpdatePass(CustomSuccessMessageMixin,UpdateView):
+    model = CustomGroup
+    template_name = 'groups.html'
+    form_class = GroupForm
+    success_url = reverse_lazy('groups')
+    success_msg = 'Группа добавлена'
+    def get_context_data(self,**kwargs):
+        kwargs['list_groups'] = CustomGroup.objects.all().order_by('title')
+        return super().get_context_data(**kwargs)
+
+class UpdateGRP(CustomSuccessMessageMixin,UpdateView):
+    model = CustomGroup
+    template_name = 'groups.html'
+    form_class = GroupForm
+    success_url = reverse_lazy('groups')
+    success_msg = 'Группа успешно обновлена'
+    def get_context_data(self,**kwargs):
+        kwargs['update'] = True
+        return super().get_context_data(**kwargs)
+
+def group_detail(request, slug):
+    group = CustomGroup.objects.get(slug__iexact=slug)
+    template = 'group_detail.html'
+    context = {
+        'group': group
+    }
+    return render(request, template, context)
+
+# Работа с пользователями
+
+class AddUser(CustomSuccessMessageMixin, CreateView):
+    model = CustomUser
+    template_name = 'users.html'
+    form_class = AddUserForm
+    success_url = reverse_lazy('users')
+    success_msg = 'Пользователь добавлен'
+    def get_context_data(self,**kwargs):
+        kwargs['list_users'] = CustomUser.objects.all().order_by('username')
+        return super().get_context_data(**kwargs)
+
+class UpdateUser(CustomSuccessMessageMixin, UpdateView):
+    model = CustomUser
+    template_name = 'users.html'
+    form_class = UpdateUserForm
+    success_url = reverse_lazy('users')
+    success_msg = 'Пользователь успешно обновлен'
+    def get_context_data(self,**kwargs):
+        kwargs['update'] = True
+        return super().get_context_data(**kwargs)
+
+class DelUser(DeleteView):
+    model = CustomUser
+    template_name = 'users.html'
+    success_url = reverse_lazy('users')
+    success_msg = 'Пользователь удален'
+    
+    def post(self,request,*args,**kwargs):
+        messages.success(self.request, self.success_msg)
+        return super().post(request)
+
+class UpdatePass(CustomSuccessMessageMixin,UpdateView):
+    model = CustomUser
+    template_name = 'users.html'
+    form_class = UpdatePassword
+    success_url = reverse_lazy('users')
+    success_msg = 'Пароль успешно обновлен'
+    def get_context_data(self,**kwargs):
+        kwargs['update'] = True
+        return super().get_context_data(**kwargs)
+
+
+
+#class Home(ListView):
+#    model = Cameras
+#    template_name = 'index.html'
+#    context_object_name = 'list_cameras'
+
+#def login_page(request):
+#    if request.method == 'POST':
+#        form = AuthUserForm(request.POST)
+#        if form.is_valid():
+#            username = request.POST['username']
+#            password = request.POST['password']
+#            user = authenticate(username=['username'], password=['password'])
+#            if user is not None:
+#                if user.is_active:
+#                    login(request, user)
+#                    return HttpResponse('Authenticated successfully')
+#                else:
+#                    return HttpResponse('Disabled account')
+#            else:
+#                return HttpResponse('Invalid login')
+#    else:
+#        form = AuthUserForm()
+#    return render(request, 'login.html', {'form': form})

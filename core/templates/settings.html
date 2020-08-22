@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %} Список камер {% endblock %}
+{% block content %}
+
+{% load staticfiles %}
+{% if request.user.is_authenticated and request.user.is_superuser  %}
+<div class="row">
+  <div class="col">
+    <h3 class="mt-2">Hастройки<h3>
+      <div class="modal-body">
+        <form id="update_data" method="post">
+          {% csrf_token %}
+          {{form}}
+          <a class="btn btn-primary mt-2 float-right" href="{% url 'cameras' %}">Вернуться назад</a>
+          <button form="update_data" type="submit" class="btn btn-success mt-2">Обновить</button>
+        </form>
+      </div>
+  </div>
+  <div class="col">
+    <a href="#" class="btn btn-primary" >Добавить хранилище</a>
+    <table class="table table-striped mt-2">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Имя</th>
+          <th scope="col">Tag</th>
+          <th scope="col">Путь</th>
+          <th scope="col">Редактировать</th>
+          <th scope="col">Удалить</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for stor in storage%}
+                <tr>
+                  <th scope="row">{{stor.id}}</th>
+                  <td><a href="#">{{stor.title|truncatechars:"30"}}</a></td>
+                  <td>{{stor.slug|truncatechars:"30"}}</td>
+                  <td>{{stor.path|truncatechars:"30"}}</td>
+                  <td><a class="badge badge-success" href="#">Редактировать</a></td>
+                  <td><a class="badge badge-danger" href="#">Удалить</a>
+                  </td>
+                </tr>
+          {% endfor %} 
+      </tbody>
+  </table> 
+  </div>
+</div>
+<div class="row">
+<div class="col">
+
+</div>
+</div>
+
+{% else %}
+{% include 'includes/error.html' %}
+{% endif %}
+{% endblock %}

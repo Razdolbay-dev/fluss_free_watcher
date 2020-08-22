@@ -1,0 +1,15 @@
+<div class="col">
+    <figure class="figure shadow p-3 mb-5 bg-white rounded">
+    <!--figure class="figure"-->
+        <h6><a href="/detail/{{cam.slug}}">{{cam.title|truncatechars:"30"}}</a></h6>
+        <div>
+            <iframe style="width: 380px; height: 240px;" frameborder='0' 
+            allowfullscreen src="http://10.1.0.40:8080/{{cam.slug}}/embed.html?autoplay=false">
+            </iframe>
+        </div>
+        {% for grp in cam.groups.all %}
+            <a class="badge badge-pill badge-primary" href="{% url 'group_page' grp.slug %}">{{ grp.title }}</a> 
+        {% endfor %}
+        
+    </figure>
+</div>

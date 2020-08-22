@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %} Список камер {% endblock %}
+{% block content %}
+
+{% load staticfiles %}
+{% if request.user.is_authenticated and request.user.is_superuser  %}
+<div class="container-md mt-5">
+<div class="card text-center ">
+    <div class="card-header">
+        {{cam.title}}
+    </div>
+    <div class=" card-body">
+        <form action="{{ cam.get_delete_url }}" method="post">
+            {% csrf_token %}
+            <h4>Удалить камеру "{{cam.title}}"?</h4>
+            <p style="margin-top: 5px;" >Камера будет безвозвратна удалена</p>
+            <div class="mt-2 mb-2">
+                <a><button type="submit" class="btn btn-danger">Удалить</button></a>
+                <a class="btn btn-primary" href="{% url 'cameras' %}">Вернуться назад</a>
+            </div>
+        </form>
+    </div>
+    <div class="card-footer text-muted">
+      Хорошо подумай перед тем как удалить
+    </div>
+  </div>
+</div>
+{% else %}
+{% include 'includes/error.html' %}
+{% endif %}
+{% endblock %}

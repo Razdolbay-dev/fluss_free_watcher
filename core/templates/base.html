@@ -1,0 +1,78 @@
+{% load staticfiles %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>{% block title%} HydraProject {% endblock %}</title>
+  </head>
+  <body>
+      <!--Панель Навигации-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-light bg-light">
+            <a class="navbar-brand" href="/">
+              <img src="{% static "img/logo2.png" %}" width="140" height="40" class="d-inline-block align-top" alt="{{cam.id}}">
+            </a>
+          </nav>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="nav nav-pills mr-auto">
+            <li class="nav-item ">{% url 'home' as url_home %}
+              <a class="nav-link {% if url_home == request.path %} active {% endif %}" href="{{url_home}}">Публичные камеры</span></a>
+            </li>
+            <li class="nav-item">
+              {% if request.user.is_authenticated %} 
+              {% for grp in user.members.all %}{% url 'myhome_page' grp.slug as url_myhome_page %}
+                <a class="nav-link {% if url_myhome_page == request.path %} active {% endif %}" href="{% url 'myhome_page' grp.slug %}">Мой дом</a> 
+              {% endfor %}
+            {% else %}{% url 'myhome' as url_myhome %}
+              <a class="nav-link {% if url_myhome == request.path %} active {% endif %}" href="{{url_myhome}}">Мой дом</a>
+            {% endif %}
+            </li>
+          {% if request.user.is_authenticated and request.user.is_superuser  %}  
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Меню
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="{% url 'users' %}">Пользователи</a>
+                <a class="dropdown-item" href="{% url 'groups' %}">Группы</a>
+                <a class="dropdown-item" href="{% url 'cameras' %}">Камеры</a> 
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% url 'settings' id=1 %}">Настройки</a>
+              </div>
+            </li>
+          {% endif %}
+          </ul>
+          
+
+          <form class="form-inline my-2 my-lg-0">
+          {% if request.user.is_authenticated %} 
+            <a class="nav-link" style="color: darkgrey;" href="{% if request.user.is_staff or request.user.is_superuser %} /admin {% else %} # {% endif %}">
+              {{request.user}}
+            </a>
+            <a class="btn btn-outline-dark my-2 my-sm-0" href="{% url 'logout' %}">Выйти</a>
+          {% else %}
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Guest</a>
+            <a class="btn btn-outline-dark my-2 my-sm-0" href="{% url 'auth' %}">Авторизация</a>
+          {% endif %}
+          </form>
+        </div>
+      </nav>
+      <!-- конец Панель Навигации-->
+
+      <!-- Блок с контентом-->
+      <div class="container-fluid mt-2">
+        {% block content %}{% endblock %}
+      </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  </body>
+</html>
