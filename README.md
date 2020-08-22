@@ -6,7 +6,9 @@
 Installation
 OS X & Linux & Windows:
 ```sh
-git clone
+git clone https://github.com/somk3zzz/fluss_free_watcher.git
+cd fluss_free_watcher
+pip install -r req.tx
 ```
 npm install my-crazy-module --save
 Windows:
