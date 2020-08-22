@@ -11,7 +11,7 @@ cd fluss_free_watcher
 pip install -r req.tx
 ```
 
-## Next Steps
+###### Next Steps
 Проводим миграции
 ```sh
 ./manage.py makemigrations
@@ -23,7 +23,7 @@ pip install -r req.tx
 ./manage.py runserver 0:80
 ```
 
-# Описание проекта
+###### Описание проекта
 В проекте реализованы следующие функции:
 - Авторизация по IP адресу пользователя по обращению на домашнюю страницу
 - Возможна авторизация не только по IP , но и Логин / Пароль
