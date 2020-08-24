@@ -1,2 +1,11 @@
-# fluss_free_watcher
-Free Watcher with API Flussonic Media Server
+# Free Watcher with API Flussonic Media Server
+Проект для личного пользования. Разработан на коленке в свободное время
+## Функции
+- Авторизация по IP 
+- Интеграция (не полная) с Flussonic по API
+- В целом вроде умеет все что Watcher , только бесплатный =)
+Написан на Django 2.2.14
+## Краткий инструктаж
+Если нужен чистый проект :
+
+
