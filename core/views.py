@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.datastructures import MultiValueDictKeyError
 from .models import *
 from .forms import *
 
@@ -45,7 +46,7 @@ def home(request):
     
 class DVR(DetailView):
     model = Cameras
-    template_name = 'detail.html'
+    template_name = 'cameras/detail.html'
     context_object_name = 'get_cameras'
 
 class CustomSuccessMessageMixin:
@@ -61,7 +62,7 @@ class CustomSuccessMessageMixin:
 #Камеры 
 class AddCamera(CustomSuccessMessageMixin, CreateView):
     model = Cameras
-    template_name = 'cameras.html'
+    template_name = 'cameras/cameras.html'
     form_class = CameraForm
     success_url = reverse_lazy('cameras')
     success_msg = 'Камера добавлена'
@@ -72,22 +73,32 @@ class AddCamera(CustomSuccessMessageMixin, CreateView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            model = Storage
+            model = Storage, Settings
+            for e in Settings.objects.filter(id=1):
+                a = e.user_f
+                b = e.pass_f
+                c = e.port_f
             slug = transliterate.translit(request.POST['title'].lower().replace(' ', '_'), reversed=True)
-            path = Storage.objects.get(id=int(request.POST['storage']))
+            
             url = request.POST['url']
             dvr = request.POST['dvr']
+            auth =(str(a),str(b))
             title = transliterate.translit(request.POST['title'], reversed=True)
-            data = 'stream '+ str(slug) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (dvr) +' ; }'
-            response = requests.post('http://localhost:8080/flussonic/api/config/stream_create', data=data, auth=('flussonic', 'Ff61MvET'))
+            try:
+                path = Storage.objects.get(id=int(request.POST['storage']))
+                data = 'stream '+ str(slug) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (dvr) +' ; }'
+            except MultiValueDictKeyError:
+                data = 'stream '+ str(slug) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; }'
+            response = requests.post('http://localhost:'+ str(c) +'/flussonic/api/config/stream_create', data=data, auth=(auth))
             view = form.save()
             view.save()
+            print(auth)
             return HttpResponseRedirect('/cameras')
         return render(request, self.template_name, {'form': form})
 
 class UpdateCamera(CustomSuccessMessageMixin,View):
     model = Cameras
-    template_name = 'cameras.html'
+    template_name = 'cameras/cameras.html'
     form_class = CameraForm
     success_url = reverse_lazy('cameras')
     success_msg = 'Камера успешно обновлена'
@@ -95,7 +106,7 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
     def get(self,request, slug):
         cam = Cameras.objects.get(slug__iexact=slug)
         form = CameraForm(instance=cam)
-        template = 'editcam.html'
+        template = 'cameras/editcam.html'
         context = {
             'form': form,
             'cam': cam
@@ -110,19 +121,23 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
             for e in Settings.objects.filter(id=1):
                 a = e.user_f
                 b = e.pass_f
-                c = e.port_f
+                port = e.port_f
 
-            slug = transliterate.translit(request.POST['title'].lower().replace(' ', '_'), reversed=True)
-            path = Storage.objects.get(id=int(request.POST['storage']))
+            name = transliterate.translit(request.POST['title'].lower().replace(' ', '_'), reversed=True)
             url = request.POST['url']
             date = request.POST['dvr']
             title = transliterate.translit(request.POST['title'], reversed=True)
 
-            data = 'stream '+ str(slug) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (date) +' ; }'
-            auth = "'" +str(a) + "','" + str(b) +"'"
-            response = requests.post('http://localhost:8080/flussonic/api/config/stream_create', data=data, auth=(a + ' , ' + b))
+            auth = str(a),str(b)
+            try:
+                path = Storage.objects.get(id=int(request.POST['storage']))
+                data = 'stream '+ str(name) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (dvr) +' ; }'
+            except MultiValueDictKeyError:
+                data = 'stream '+ str(name) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; }'
+            
+            response = requests.post('http://localhost:'+ str(port) +'/flussonic/api/config/stream_create', data=data, auth=auth)
             form.save()
-            print(auth)
+
             return HttpResponseRedirect('/cameras')
         return render(request, self.template_name, success_msg, {'form': form})
 
@@ -130,7 +145,7 @@ class DelCamera(View):
     model = Cameras
     def get(self, request, slug):
         cam = Cameras.objects.get(slug__iexact=slug)
-        template = 'delete.html'
+        template = 'cameras/delete_cam.html'
         context = {
             'cam': cam
         }
@@ -141,17 +156,18 @@ class DelCamera(View):
         data = slug
         response = requests.post('http://localhost:8080/flussonic/api/config/stream_delete', data=data, auth=('flussonic', 'Ff61MvET'))
         cam.delete()
-        print(data)
+
         return redirect(reverse('cameras'))
 
 class myHome(ListView):
     model = Cameras
-    template_name = 'myhome.html'
+    template_name = 'cameras/myhome.html'
     context_object_name = 'list_cameras'
+
 #Настройки
 class Setting(View):
     model = Settings, Storage
-    def get(self,request, id):
+    def get(self,request, pk=id):
         setting = Settings.objects.get(id=1)
         storage = Storage.objects.all()
         form = SettingsForm(instance=setting)
@@ -163,15 +179,77 @@ class Setting(View):
         }
         return render(request, template, context)
 
-    def post(self, request, id):
+    def post(self, request, pk=id):
         setting = Settings.objects.get(id=1)
         form = SettingsForm(request.POST, instance=setting)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/settings/')
         return render(request, self.template_name, success_msg, {'form': form})
 
 #Хранилища
+
+class AddStorage(View):
+    model = Storage
+    def get(self,request):
+        form = StorageForm()
+        template = 'storage/add_stor.html'
+        context = {
+            'form': form
+        }
+        return render(request,template, context)
+        
+    def post(self, request):
+        bound_form = StorageForm(request.POST)
+        template = 'storage/add_stor.html'
+        context = {
+            'form': bound_form
+        }
+        if bound_form.is_valid():
+            bound_form.save()
+            return redirect(reverse('settings'))
+        return render(request, template, context)
+
+class DelStorage(View):
+    model = Storage
+    def get(self, request, slug):
+        stor = Storage.objects.get(slug__iexact=slug)
+        template = 'storage/del_stor.html'
+        context = {
+            'stor': stor
+        }
+        return render(request, template, context)
+
+    def post(self, request, slug):
+        stor = Storage.objects.get(slug__iexact=slug)
+        stor.delete()
+
+        return redirect(reverse('settings'))
+
+class UpdateStorage(View):
+    model = Storage
+    template = 'storage/upd_stor.html'
+    def get(self,request, slug):
+        stor = Storage.objects.get(slug__iexact=slug)
+        form = StorageForm(instance=stor)
+        template = 'storage/upd_stor.html'
+        context = {
+            'form': form,
+            'stor': stor
+        }
+        return render(request, template, context)
+
+    def post(self, request, slug):
+        stor = Storage.objects.get(slug__iexact=slug)
+        form = StorageForm(request.POST, instance=stor)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/settings')
+        return render(request, self.template_name, success_msg, {'form': form})
+#class UpdateStorage(CustomSuccessMessageMixin,View):
+  # model = Cameras
+   # template_name = 'cameras.html'
+    
 
 ##Login/Logout пользователя
 class HydraLoginView(LoginView):
@@ -188,7 +266,7 @@ class HydraLogout(LogoutView):
 
 class DelGRP(DeleteView):
     model = CustomGroup
-    template_name = 'groups.html'
+    template_name = 'groups/groups.html'
     success_url = reverse_lazy('groups')
     success_msg = 'Группа удалена'
     
@@ -198,17 +276,7 @@ class DelGRP(DeleteView):
 
 class AddGRP(CustomSuccessMessageMixin, CreateView):
     model = CustomGroup
-    template_name = 'groups.html'
-    form_class = GroupForm
-    success_url = reverse_lazy('groups')
-    success_msg = 'Группа добавлена'
-    def get_context_data(self,**kwargs):
-        kwargs['list_groups'] = CustomGroup.objects.all().order_by('title')
-        return super().get_context_data(**kwargs)
-
-class UpdatePass(CustomSuccessMessageMixin,UpdateView):
-    model = CustomGroup
-    template_name = 'groups.html'
+    template_name = 'groups/groups.html'
     form_class = GroupForm
     success_url = reverse_lazy('groups')
     success_msg = 'Группа добавлена'
@@ -218,7 +286,7 @@ class UpdatePass(CustomSuccessMessageMixin,UpdateView):
 
 class UpdateGRP(CustomSuccessMessageMixin,UpdateView):
     model = CustomGroup
-    template_name = 'groups.html'
+    template_name = 'groups/groups.html'
     form_class = GroupForm
     success_url = reverse_lazy('groups')
     success_msg = 'Группа успешно обновлена'
@@ -228,7 +296,7 @@ class UpdateGRP(CustomSuccessMessageMixin,UpdateView):
 
 def group_detail(request, slug):
     group = CustomGroup.objects.get(slug__iexact=slug)
-    template = 'group_detail.html'
+    template = 'groups/group_detail.html'
     context = {
         'group': group
     }

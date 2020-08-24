@@ -17,13 +17,11 @@
       </div>
   </div>
   <div class="col">
-    <a href="#" class="btn btn-primary" >Добавить хранилище</a>
+    <a href="{% url 'addstor' %}" class="btn btn-primary" >Добавить хранилище</a>
     <table class="table table-striped mt-2">
       <thead>
         <tr>
-          <th scope="col">#</th>
           <th scope="col">Имя</th>
-          <th scope="col">Tag</th>
           <th scope="col">Путь</th>
           <th scope="col">Редактировать</th>
           <th scope="col">Удалить</th>
@@ -32,12 +30,10 @@
       <tbody>
           {% for stor in storage%}
                 <tr>
-                  <th scope="row">{{stor.id}}</th>
-                  <td><a href="#">{{stor.title|truncatechars:"30"}}</a></td>
-                  <td>{{stor.slug|truncatechars:"30"}}</td>
+                  <td>{{stor.title|truncatechars:"30"}}</td>
                   <td>{{stor.path|truncatechars:"30"}}</td>
-                  <td><a class="badge badge-success" href="#">Редактировать</a></td>
-                  <td><a class="badge badge-danger" href="#">Удалить</a>
+                  <td><a class="badge badge-success" href="{% url 'updstor' stor.slug %}">Редактировать</a></td>
+                  <td><a class="badge badge-danger" href="{% url 'delstor' stor.slug %}">Удалить</a>
                   </td>
                 </tr>
           {% endfor %} 

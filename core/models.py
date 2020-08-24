@@ -17,7 +17,7 @@ def my_slugify_function(content):
 #Хранилища
 class Storage(models.Model):
     title = models.CharField(max_length=200, verbose_name='Имя')
-    slug = AutoSlugField(populate_from='title', slugify_function=my_slugify_function)
+    slug = AutoSlugField(populate_from='title')
     path = models.CharField(max_length=250, null=True, verbose_name='URL')
 
     def __str__(self):

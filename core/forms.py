@@ -25,6 +25,15 @@ class SettingsForm(forms.ModelForm):
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
 
+class StorageForm(forms.ModelForm):
+    class Meta:
+        model = Storage
+        fields = '__all__'
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
+
 class GroupForm(forms.ModelForm):
     class Meta:
         model = CustomGroup
