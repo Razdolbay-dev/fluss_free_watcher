@@ -33,3 +33,4 @@ rm db.sqlite3
 Логин: flussonic
 Пароль: letmein!
 ```
+https://t.me/fant1kus <-- Мой телеграмм. Если что , то сюда
