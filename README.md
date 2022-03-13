@@ -17,6 +17,8 @@ https://github.com/somk3zzz/fluss_free_watcher.git
 Выполняем поэтапно:
 ```sh
 rm db.sqlite3
+pip3 install -r req.txt
+
 ./manage.py makemigrations
 ./manage.py migrate
 ./manage.py createsuperuser
