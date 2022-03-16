@@ -16,9 +16,9 @@ class CameraForm(forms.ModelForm):
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
 
-class SettingsForm(forms.ModelForm):
+class ConfigsForm(forms.ModelForm):
     class Meta:
-        model = Settings
+        model = Configs
         fields = '__all__'
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)

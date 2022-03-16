@@ -12,7 +12,7 @@ import transliterate
 
 # Create your models here.
 def my_slugify_function(content):
-    return transliterate.translit(content.replace(' ', '_').lower(),reversed=True)
+    return transliterate.translit(content.replace(' ', '').lower(),reversed=True)
 
 #Хранилища
 class Storage(models.Model):
@@ -83,7 +83,7 @@ class CustomUser(AbstractUser):
     update_cam = models.BooleanField(default=False, verbose_name='Редактирование камер')
 
 # Модель настроек
-class Settings(models.Model): 
+class Configs(models.Model): 
     title = models.CharField(max_length=150, verbose_name='Отображаемое имя')
     logo = models.ImageField(upload_to='logo/', blank=True)
     user_f = models.CharField(max_length=25, default='flussonic', verbose_name='Логин ( flussonic )', blank=False)

@@ -32,6 +32,6 @@ urlpatterns = [
     path('groups/<str:slug>', views.group_detail, name='group_page'),
     path('myhome/', myHome.as_view(), name='myhome'),
     path('myhome/<str:slug>', views.group_detail, name='myhome_page'),
-    path('settings/', Setting.as_view(), name='settings'),
+    path('configs/', GetConfigs.as_view(), name='configs'),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

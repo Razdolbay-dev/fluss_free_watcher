@@ -73,12 +73,12 @@ class AddCamera(CustomSuccessMessageMixin, CreateView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            model = Storage, Settings
-            for e in Settings.objects.filter(id=1):
+            model = Storage, Configs
+            for e in Configs.objects.filter(id=1):
                 a = e.user_f
                 b = e.pass_f
                 c = e.port_f
-            slug = transliterate.translit(request.POST['title'].lower().replace(' ', '_'), reversed=True)
+            slug = transliterate.translit(request.POST['title'].lower().replace(' ', ''), reversed=True)
             
             url = request.POST['url']
             dvr = request.POST['dvr']
@@ -86,10 +86,10 @@ class AddCamera(CustomSuccessMessageMixin, CreateView):
             title = transliterate.translit(request.POST['title'], reversed=True)
             try:
                 path = Storage.objects.get(id=int(request.POST['storage']))
-                data = 'stream '+ str(slug) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (dvr) +' ; }'
+                data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '"}'
             except MultiValueDictKeyError:
-                data = 'stream '+ str(slug) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; }'
-            response = requests.post('http://localhost:'+ str(c) +'/flussonic/api/config/stream_create', data=data, auth=(auth))
+                data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '"}'
+            response = requests.put('http://localhost:'+ str(c) +'/flussonic/api/v3/streams/'+ str(slug) +'', data = data, auth=(str(a), str(b)), headers = {'content-type': 'application/json'})
             view = form.save()
             view.save()
             print(auth)
@@ -117,8 +117,8 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
         cam = Cameras.objects.get(slug__iexact=slug)
         form = CameraForm(request.POST, instance=cam)
         if form.is_valid():
-            model = Storage, Settings
-            for e in Settings.objects.filter(id=1):
+            model = Storage, Configs
+            for e in Configs.objects.filter(id=1):
                 a = e.user_f
                 b = e.pass_f
                 port = e.port_f
@@ -142,7 +142,7 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
         return render(request, self.template_name, success_msg, {'form': form})
 
 class DelCamera(View):
-    model = Cameras
+    model = Cameras,Configs
     def get(self, request, slug):
         cam = Cameras.objects.get(slug__iexact=slug)
         template = 'cameras/delete_cam.html'
@@ -152,9 +152,13 @@ class DelCamera(View):
         return render(request, template, context)
 
     def post(self, request, slug):
+        for e in Configs.objects.filter(id=1):
+            a = e.user_f
+            b = e.pass_f
+            c = e.port_f
         cam = Cameras.objects.get(slug__iexact=slug)
-        data = slug
-        response = requests.post('http://localhost:8080/flussonic/api/config/stream_delete', data=data, auth=('flussonic', 'Ff61MvET'))
+        name = slug
+        response = requests.delete('http://localhost:'+ str(c) +'/flussonic/api/v3/streams/' + str(name) +'', auth=(str(a), str(b)))
         cam.delete()
 
         return redirect(reverse('cameras'))
@@ -165,12 +169,12 @@ class myHome(ListView):
     context_object_name = 'list_cameras'
 
 #Настройки
-class Setting(View):
-    model = Settings, Storage
+class GetConfigs(View):
+    model = Configs, Storage
     def get(self,request, pk=id):
-        setting = Settings.objects.get(id=1)
+        setting = Configs.objects.get(id=1)
         storage = Storage.objects.all()
-        form = SettingsForm(instance=setting)
+        form = ConfigsForm(instance=setting)
         template = 'settings.html'
         context = {
             'form': form,
@@ -180,11 +184,11 @@ class Setting(View):
         return render(request, template, context)
 
     def post(self, request, pk=id):
-        setting = Settings.objects.get(id=1)
-        form = SettingsForm(request.POST, instance=setting)
+        setting = Configs.objects.get(id=1)
+        form = ConfigsForm(request.POST, instance=setting)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/settings/')
+            return HttpResponseRedirect('/configs/')
         return render(request, self.template_name, success_msg, {'form': form})
 
 #Хранилища

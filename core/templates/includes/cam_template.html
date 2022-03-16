@@ -4,7 +4,7 @@
         <h6><a href="/detail/{{cam.slug}}">{{cam.title|truncatechars:"30"}}</a></h6>
         <div>
             <iframe style="width: 380px; height: 240px;" frameborder='0' 
-            allowfullscreen src="http://10.1.0.40:8080/{{cam.slug}}/embed.html?autoplay=false">
+            allowfullscreen src="http://localhost:8080/{{cam.slug}}/embed.html?autoplay=false">
             </iframe>
         </div>
         {% for grp in cam.groups.all %}
