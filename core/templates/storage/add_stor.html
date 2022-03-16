@@ -13,7 +13,7 @@
     <form id="add_data" method="post">
         {% csrf_token %}
         {{form}}
-        <a class="btn btn-primary mt-2 float-right" href="{% url 'settings' %}">Вернуться назад</a>
+        <a class="btn btn-primary mt-2 float-right" href="{% url 'configs' %}">Вернуться назад</a>
         <button form="add_data" type="submit" class="btn btn-success mt-2">Добавить</button>
       </form>
   </div>

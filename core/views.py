@@ -89,7 +89,7 @@ class AddCamera(CustomSuccessMessageMixin, CreateView):
                 data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '"}'
             except MultiValueDictKeyError:
                 data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '"}'
-            response = requests.put('http://localhost:'+ str(c) +'/flussonic/api/v3/streams/'+ str(slug) +'', data = data, auth=(str(a), str(b)), headers = {'content-type': 'application/json'})
+            response = requests.put('http://127.0.0.1:'+ str(c) +'/flussonic/api/v3/streams/'+ str(slug) +'', data = data, auth=(str(a), str(b)), headers = {'content-type': 'application/json'})
             view = form.save()
             view.save()
             print(auth)
@@ -135,7 +135,7 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
             except MultiValueDictKeyError:
                 data = 'stream '+ str(name) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; }'
             
-            response = requests.post('http://localhost:'+ str(port) +'/flussonic/api/config/stream_create', data=data, auth=auth)
+            response = requests.post('http://127.0.0.1:'+ str(port) +'/flussonic/api/config/stream_create', data=data, auth=auth)
             form.save()
 
             return HttpResponseRedirect('/cameras')
@@ -158,7 +158,7 @@ class DelCamera(View):
             c = e.port_f
         cam = Cameras.objects.get(slug__iexact=slug)
         name = slug
-        response = requests.delete('http://localhost:'+ str(c) +'/flussonic/api/v3/streams/' + str(name) +'', auth=(str(a), str(b)))
+        response = requests.delete('http://127.0.0.1:'+ str(c) +'/flussonic/api/v3/streams/' + str(name) +'', auth=(str(a), str(b)))
         cam.delete()
 
         return redirect(reverse('cameras'))
@@ -211,7 +211,7 @@ class AddStorage(View):
         }
         if bound_form.is_valid():
             bound_form.save()
-            return redirect(reverse('settings'))
+            return redirect(reverse('configs'))
         return render(request, template, context)
 
 class DelStorage(View):
@@ -228,7 +228,7 @@ class DelStorage(View):
         stor = Storage.objects.get(slug__iexact=slug)
         stor.delete()
 
-        return redirect(reverse('settings'))
+        return redirect(reverse('configs'))
 
 class UpdateStorage(View):
     model = Storage
@@ -248,7 +248,7 @@ class UpdateStorage(View):
         form = StorageForm(request.POST, instance=stor)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/settings')
+            return HttpResponseRedirect('/configs')
         return render(request, self.template_name, success_msg, {'form': form})
 #class UpdateStorage(CustomSuccessMessageMixin,View):
   # model = Cameras
