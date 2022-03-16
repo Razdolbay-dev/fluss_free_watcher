@@ -34,11 +34,11 @@ class Cameras(models.Model):
         ('OT', 'Другие'),
     )
     days = (
-        ('1d', '1 день'),
-        ('3d', '3 дня'),
-        ('5d', '5 дней'),
-        ('7d', '1 неделя'),
-        ('14d', '2 недели')
+        ('86400', '1 день'),
+        ('259200', '3 дня'),
+        ('432000', '5 дней'),
+        ('604800', '1 неделя'),
+        ('1209600', '2 недели')
     ) 
     title = models.CharField(max_length=200, verbose_name='Имя')
     url = models.CharField(max_length=250, verbose_name='URL')

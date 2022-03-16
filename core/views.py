@@ -86,7 +86,7 @@ class AddCamera(CustomSuccessMessageMixin, CreateView):
             title = transliterate.translit(request.POST['title'], reversed=True)
             try:
                 path = Storage.objects.get(id=int(request.POST['storage']))
-                data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '"}'
+                data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '","dvr":{"dvr_limit":"'+ str(dvr) +'","root":"'+ str(path) +'"}}'
             except MultiValueDictKeyError:
                 data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '"}'
             response = requests.put('http://127.0.0.1:'+ str(c) +'/flussonic/api/v3/streams/'+ str(slug) +'', data = data, auth=(str(a), str(b)), headers = {'content-type': 'application/json'})
