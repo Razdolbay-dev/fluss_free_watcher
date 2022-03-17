@@ -63,7 +63,7 @@ def DVR(request,id):
         'obj':obj
     }
     template = 'cameras/detail.html'
-    
+
     return render(request, template, context)
 
 
@@ -139,9 +139,8 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
             for e in Configs.objects.filter(id=1):
                 a = e.user_f
                 b = e.pass_f
-                port = e.port_f
-
-            name = transliterate.translit(request.POST['title'].lower().replace(' ', '_'), reversed=True)
+                c = e.port_f
+            name = transliterate.translit(request.POST['title'].lower().replace(' ', ''), reversed=True)
             url = request.POST['url']
             date = request.POST['dvr']
             title = transliterate.translit(request.POST['title'], reversed=True)
@@ -149,11 +148,15 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
             auth = str(a),str(b)
             try:
                 path = Storage.objects.get(id=int(request.POST['storage']))
-                data = 'stream '+ str(name) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (dvr) +' ; }'
+                if date == "0":
+                    data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '","dvr":{"dvr_limit":"0","dvr_offline":true,"root":"'+ str(path) +'"}}'
+                else:
+                    data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '","dvr":{"dvr_limit":"'+ str(date) +'","dvr_offline":false,"root":"'+ str(path) +'"}}'
+
             except MultiValueDictKeyError:
-                data = 'stream '+ str(name) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; }'
+                data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '"}'
             
-            response = requests.post('http://127.0.0.1:'+ str(port) +'/flussonic/api/config/stream_create', data=data, auth=auth)
+            response = requests.put('http://127.0.0.1:'+ str(c) +'/flussonic/api/v3/streams/'+ str(slug) +'', data = data, auth=(str(a), str(b)), headers = {'content-type': 'application/json'})
             form.save()
 
             return HttpResponseRedirect('/cameras')
