@@ -9,8 +9,9 @@ from .views import *
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('detail/<str:slug>', DVR.as_view(), name='detail'),
     #Cameras
+    #path('detail/<str:slug>', DVR.as_view(), name='detail'),
+    path('detail/<int:id>', views.DVR, name='detail'),
     path('cameras/', AddCamera.as_view(), name='cameras'),
     path('editcam/<str:slug>', UpdateCamera.as_view(), name='editcam'),
     path('delcam/<str:slug>', DelCamera.as_view(), name='delcam'),

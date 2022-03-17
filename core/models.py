@@ -89,7 +89,7 @@ class Configs(models.Model):
     user_f = models.CharField(max_length=25, default='flussonic', verbose_name='Логин ( flussonic )', blank=False)
     pass_f = models.CharField(max_length=25, default='letmein!', verbose_name='Пароль ( flussonic )', blank=False)
     port_f = models.CharField(max_length=10, default='8080', verbose_name='Порт ( flussonic )', blank=False)
-
+    ip_addr = models.CharField(max_length=15, default='127.0.0.1', verbose_name='IP Адресс сервера', blank=False)
     def __str__(self):
         return '{}'.format(self.title)
         

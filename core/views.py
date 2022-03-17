@@ -21,8 +21,12 @@ import locale
 # Create your views here.
 def home(request):
     list_cameras = Cameras.objects.all()
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
     context = {
-        'list_cameras':list_cameras
+        'list_cameras':list_cameras,
+        'obj':obj
     }
     template = 'index.html'
     def get_client_ip(request):
@@ -44,10 +48,24 @@ def home(request):
     else:
         return render(request, template, context)
     
-class DVR(DetailView):
-    model = Cameras
-    template_name = 'cameras/detail.html'
-    context_object_name = 'get_cameras'
+#class DVR(DetailView):
+#    model = Cameras
+#    template_name = 'cameras/detail.html'
+#    context_object_name = 'get_cameras'
+
+def DVR(request,id):
+    get_cameras = Cameras.objects.get(id=id)
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
+    context = {
+        'get_cameras':get_cameras,
+        'obj':obj
+    }
+    template = 'cameras/detail.html'
+    
+    return render(request, template, context)
+
 
 class CustomSuccessMessageMixin:
     @property

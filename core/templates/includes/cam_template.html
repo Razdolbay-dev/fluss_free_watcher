@@ -1,10 +1,10 @@
 <div class="col">
     <figure class="figure shadow p-3 mb-5 bg-white rounded">
     <!--figure class="figure"-->
-        <h6><a href="/detail/{{cam.slug}}">{{cam.title|truncatechars:"30"}}</a></h6>
+        <h6><a href="/detail/{{cam.id}}">{{cam.title|truncatechars:"30"}}</a></h6>
         <div>
             <iframe style="width: 380px; height: 240px;" frameborder='0' 
-            allowfullscreen src="http://localhost:8080/{{cam.slug}}/embed.html?autoplay=false">
+            allowfullscreen src="http://{{obj.ip_addr}}:{{obj.port_f}}/{{cam.slug}}/embed.html?autoplay=false">
             </iframe>
         </div>
         {% for grp in cam.groups.all %}
