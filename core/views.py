@@ -24,6 +24,7 @@ def home(request):
     for obj in Configs.objects.filter(id=1):
         ip = obj.ip_addr
         port = obj.port_f
+        
     context = {
         'list_cameras':list_cameras,
         'obj':obj
