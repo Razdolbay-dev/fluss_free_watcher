@@ -48,10 +48,17 @@
       </tr>
     </thead>
     <tbody>
+        <style>.dot {
+          height: 10px;
+          width: 10px;
+          background-color: rgb(18, 168, 25);
+          border-radius: 50%;
+          display: inline-block;
+        }</style>
         {% for cam in list_cameras%}
               <tr>
-                <th scope="row"><img src="{% static "img/onair.png" %}" width="45" height="30" class="d-inline-block align-top" alt=""></th>
-                <td><a href="{% url 'detail' cam.slug %}">{{cam.title|truncatechars:"30"}}</a></td>
+                <th scope="row"><span class="dot"></span></th>
+                <td><a href="{% url 'detail' cam.id %}">{{cam.title|truncatechars:"30"}}</a></td>
                 <td>{{cam.slug|truncatechars:"30"}}</td>
                 <td>{{cam.url|truncatechars:"30"}}</td>
                 <td>{{cam.get_camera_type_display}}</td>

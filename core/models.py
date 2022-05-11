@@ -12,7 +12,8 @@ import transliterate
 
 # Create your models here.
 def my_slugify_function(content):
-    return transliterate.translit(content.replace(' ', '').lower(),reversed=True)
+    slug = transliterate.translit(content.replace(' ', '').lower(),reversed=True)
+    return slug.lower().replace('\'', '')
 
 #Хранилища
 class Storage(models.Model):
@@ -34,6 +35,7 @@ class Cameras(models.Model):
         ('OT', 'Другие'),
     )
     days = (
+        ('0', 'Отключить'),
         ('86400', '1 день'),
         ('259200', '3 дня'),
         ('432000', '5 дней'),
@@ -78,6 +80,7 @@ class CustomGroup(models.Model):
 class CustomUser(AbstractUser):
     email = models.EmailField(max_length=200, blank=True, verbose_name='Почта')
     ip_address = models.GenericIPAddressField(blank=True, null=True, verbose_name='Внутренний IP')
+    count_addr = models.CharField(max_length=3)
     members = models.ManyToManyField('CustomGroup', db_table='slug', blank=True, verbose_name='Группы', related_name='groups')
     dvr = models.BooleanField(default=False, verbose_name='Доступ к архиву')
     update_cam = models.BooleanField(default=False, verbose_name='Редактирование камер')
@@ -89,7 +92,7 @@ class Configs(models.Model):
     user_f = models.CharField(max_length=25, default='flussonic', verbose_name='Логин ( flussonic )', blank=False)
     pass_f = models.CharField(max_length=25, default='letmein!', verbose_name='Пароль ( flussonic )', blank=False)
     port_f = models.CharField(max_length=10, default='8080', verbose_name='Порт ( flussonic )', blank=False)
-
+    ip_addr = models.CharField(max_length=15, default='127.0.0.1', verbose_name='IP Адресс сервера', blank=False)
     def __str__(self):
         return '{}'.format(self.title)
         

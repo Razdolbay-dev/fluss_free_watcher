@@ -1,6 +1,9 @@
+from pickle import NONE
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
+from ipaddress import IPv4Address
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, TemplateView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.models import User, AnonymousUser
@@ -18,13 +21,31 @@ import os
 import sys
 import locale
 
+#def handle_not_found(request,exceptions):
+#    return render(request,'includes/404.html')
+
+def page_not_found_view(request, exception):
+    return render(request, 'includes/404.html', status=404)
+
 # Create your views here.
 def home(request):
-    list_cameras = Cameras.objects.all()
+    
+    #list_cameras = Cameras.objects.all()
+    list_cameras_pub = Cameras.objects.filter(camera_type='PU')[:8]
+    list_cameras_priv = Cameras.objects.filter(camera_type='PR')[:8]
+    print(list_cameras_pub)
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
+      
     context = {
-        'list_cameras':list_cameras
+        #'list_cameras':list_cameras,
+        'list_cameras_pub':list_cameras_pub,
+        'list_cameras_priv':list_cameras_priv,
+        'obj':obj,
     }
     template = 'index.html'
+
     def get_client_ip(request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
@@ -36,18 +57,55 @@ def home(request):
     if request.user == AnonymousUser():
         try:
             ip = get_client_ip(request)
-            user = CustomUser.objects.get(ip_address=ip) #<-- Проверяет входит ли ip тот что мы получили
-            login(request,user)
+            #print(ip)
+            ip_chk = IPv4Address(str(ip))
+            for obj2 in CustomUser.objects.all():
+                ipindb = obj2.ip_address
+                count = obj2.count_addr
+                start_ip = IPv4Address(str(ipindb))
+                end_ip = start_ip + int(count)
+                if start_ip <= ip_chk <= end_ip:
+                    ipforauth = str(start_ip)
+                    user = CustomUser.objects.get(ip_address=ipforauth)
+                    #print("ONO --> "+str(user))
+                    login(request,user)
+                else:
+                    pass
+            
+            
+            
             return render(request, template, context)
         except ObjectDoesNotExist:
             return render(request, template, context)
     else:
         return render(request, template, context)
-    
-class DVR(DetailView):
-    model = Cameras
-    template_name = 'cameras/detail.html'
-    context_object_name = 'get_cameras'
+
+def DVR(request,id):
+    get_cameras = Cameras.objects.get(id=id)
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
+    context = {
+        'get_cameras':get_cameras,
+        'obj':obj
+    }
+    template = 'cameras/detail.html'
+
+    return render(request, template, context)
+
+def Cam(request,id):
+    get_cameras = Cameras.objects.get(id=id)
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
+    context = {
+        'get_cameras':get_cameras,
+        'obj':obj
+    }
+    template = 'cameras/view.html'
+
+    return render(request, template, context)
+
 
 class CustomSuccessMessageMixin:
     @property
@@ -78,8 +136,8 @@ class AddCamera(CustomSuccessMessageMixin, CreateView):
                 a = e.user_f
                 b = e.pass_f
                 c = e.port_f
-            slug = transliterate.translit(request.POST['title'].lower().replace(' ', ''), reversed=True)
-            
+            slug_1 = transliterate.translit(request.POST['title'].lower().replace(' ', ''), reversed=True)
+            slug = slug_1.lower().replace('\'', '')
             url = request.POST['url']
             dvr = request.POST['dvr']
             auth =(str(a),str(b))
@@ -121,9 +179,8 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
             for e in Configs.objects.filter(id=1):
                 a = e.user_f
                 b = e.pass_f
-                port = e.port_f
-
-            name = transliterate.translit(request.POST['title'].lower().replace(' ', '_'), reversed=True)
+                c = e.port_f
+            name = transliterate.translit(request.POST['title'].lower().replace(' ', ''), reversed=True)
             url = request.POST['url']
             date = request.POST['dvr']
             title = transliterate.translit(request.POST['title'], reversed=True)
@@ -131,11 +188,15 @@ class UpdateCamera(CustomSuccessMessageMixin,View):
             auth = str(a),str(b)
             try:
                 path = Storage.objects.get(id=int(request.POST['storage']))
-                data = 'stream '+ str(name) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; dvr '+ str(path) + ' '+ str (dvr) +' ; }'
+                if date == "0":
+                    data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '","dvr":{"dvr_limit":"0","dvr_offline":true,"root":"'+ str(path) +'"}}'
+                else:
+                    data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '","dvr":{"dvr_limit":"'+ str(date) +'","dvr_offline":false,"root":"'+ str(path) +'"}}'
+
             except MultiValueDictKeyError:
-                data = 'stream '+ str(name) +' { title "'+ str(title) +'"; url '+ str(url) +' aac=true; }'
+                data = '{"inputs":[{"url":"' + str(url) + '"}],"title":"' + str(slug) + '"}'
             
-            response = requests.post('http://127.0.0.1:'+ str(port) +'/flussonic/api/config/stream_create', data=data, auth=auth)
+            response = requests.put('http://127.0.0.1:'+ str(c) +'/flussonic/api/v3/streams/'+ str(slug) +'', data = data, auth=(str(a), str(b)), headers = {'content-type': 'application/json'})
             form.save()
 
             return HttpResponseRedirect('/cameras')
@@ -250,10 +311,6 @@ class UpdateStorage(View):
             form.save()
             return HttpResponseRedirect('/configs')
         return render(request, self.template_name, success_msg, {'form': form})
-#class UpdateStorage(CustomSuccessMessageMixin,View):
-  # model = Cameras
-   # template_name = 'cameras.html'
-    
 
 ##Login/Logout пользователя
 class HydraLoginView(LoginView):
@@ -300,9 +357,13 @@ class UpdateGRP(CustomSuccessMessageMixin,UpdateView):
 
 def group_detail(request, slug):
     group = CustomGroup.objects.get(slug__iexact=slug)
-    template = 'groups/group_detail.html'
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
+    template = 'group_detail.html'
     context = {
-        'group': group
+        'group': group,
+        'obj':obj
     }
     return render(request, template, context)
 
@@ -348,7 +409,39 @@ class UpdatePass(CustomSuccessMessageMixin,UpdateView):
         kwargs['update'] = True
         return super().get_context_data(**kwargs)
 
+def public_all(request):
+    list_cameras = Cameras.objects.filter(camera_type="PU")
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
+    
+    paginator = Paginator(list_cameras, 8) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
+    context = {
+        'obj':obj,
+        'page_obj': page_obj
+    }
+    template = 'cameras/public.html'
+    return render(request, template, context)
+
+def privat_all(request):
+    list_cameras = Cameras.objects.filter(camera_type="PR")
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
+    
+    paginator = Paginator(list_cameras, 8) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'obj':obj,
+        'page_obj': page_obj
+    }
+    template = 'cameras/private.html'
+    return render(request, template, context)
 
 #class Home(ListView):
 #    model = Cameras

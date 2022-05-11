@@ -1,49 +1,34 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="accordion" id="accordionExample">
-    <div class="card">
-      <div class="card-header" id="headingOne">
-        <h2 class="mb-0">
-          <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            Публичные камеры
-          </button>
-        </h2>
-      </div>
-      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-        <div class="card-body">
-            <div class="row row-cols-4">
-                {% for cam in list_cameras %}
+
+  <div class="container-fluid">
+      <h2 class="mb-3 text-center">
+          Публичные камеры
+      </h2>
+          <div class="row">
+              {% for cam in list_cameras_pub %}
                 {% if cam.camera_type == "PU" %}
                     {% include  'includes/cam_template.html'%}
                 {% endif %}
-                {% endfor %}
-            </div>        
-        </div>
-      </div>
-    </div>
+              {% endfor %}
+          </div>        
+        <a href="{% url 'publics' %}" style="display: block; margin: 0 auto; text-align: center; max-width: 540px; margin-top: 50px;" class="btn btn-primary">Смотреть все</a>
+  </div>
 
-    {% if request.user.is_superuser %} 
-    <div class="card">
-      <div class="card-header" id="headingTwo">
-        <h2 class="mb-0">
-          <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+    {% if request.user.is_superuser or request.user.is_staff %} 
+    <div class="container-fluid">
+        <h2 class="mt-5 mb-3 text-center">
             Прочие камеры
-          </button>
         </h2>
-      </div>
-      <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionExample">
-        <div class="card-body">
-            <div class="row row-cols-4">
-                {% for cam in list_cameras %}
-                {% if cam.camera_type == "PR" %}
-                  {% include  'includes/cam_template.html'%}
-                {% endif %}
+        <div class="row">
+                {% for cam in list_cameras_priv %}
+                  {% if cam.camera_type == "PR" %}
+                    {% include  'includes/cam_template.html'%}
+                  {% endif %}
                 {% endfor %}
-            </div> 
-        </div>
-      </div>
+        </div> 
+        <a href="{% url 'privats' %}" style="display: block; margin: 0 auto; text-align: center; max-width: 540px; margin-top: 50px;" class=" mb-3 btn btn-primary">Смотреть все</a>
     </div>
     {% endif %}
-  </div>    
 
 {% endblock %}

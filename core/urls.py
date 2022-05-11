@@ -9,8 +9,11 @@ from .views import *
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('detail/<str:slug>', DVR.as_view(), name='detail'),
+    path('public_all/', views.public_all, name='publics'),
+    path('privat_all/', views.privat_all, name='privats'),
     #Cameras
+    path('cam/<int:id>', views.Cam, name='cam'),
+    path('detail/<int:id>', views.DVR, name='detail'),
     path('cameras/', AddCamera.as_view(), name='cameras'),
     path('editcam/<str:slug>', UpdateCamera.as_view(), name='editcam'),
     path('delcam/<str:slug>', DelCamera.as_view(), name='delcam'),
@@ -35,3 +38,4 @@ urlpatterns = [
     path('configs/', GetConfigs.as_view(), name='configs'),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

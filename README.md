@@ -9,13 +9,12 @@
 ### Если нужен чистый проект :
 
 Выгружаем проект себе на сервер
-```sh
-https://github.com/somk3zzz/fluss_free_watcher.git
-```
+
 Переходим в каталог ```cd fluss_free_watcher```
 
 Выполняем поэтапно:
 ```sh
+pip3 install -r req.txt
 rm db.sqlite3
 ./manage.py makemigrations
 ./manage.py migrate

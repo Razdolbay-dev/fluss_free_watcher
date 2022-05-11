@@ -1,15 +1,24 @@
-<div class="col">
-    <figure class="figure shadow p-3 mb-5 bg-white rounded">
-    <!--figure class="figure"-->
-        <h6><a href="/detail/{{cam.slug}}">{{cam.title|truncatechars:"30"}}</a></h6>
-        <div>
-            <iframe style="width: 380px; height: 240px;" frameborder='0' 
-            allowfullscreen src="http://localhost:8080/{{cam.slug}}/embed.html?autoplay=false">
-            </iframe>
-        </div>
-        {% for grp in cam.groups.all %}
-            <a class="badge badge-pill badge-primary" href="{% url 'group_page' grp.slug %}">{{ grp.title }}</a> 
-        {% endfor %}
-        
-    </figure>
-</div>
+<div class="col col-xl- col-lg-6 col-sm-8" style="max-width: 330px; width: auto; margin: 0 auto;" >
+    <div class="card bg-transparent mb-4" style="border: 0ch;">
+      <h6><a href="/cam/{{cam.id}}">{{cam.title|truncatechars:"30"}}</a></h6>
+      <div>
+        <iframe style="max-width: 380px; width: auto; height: 240px;" frameborder="0" 
+        allowfullscreen="" src="http://{{obj.ip_addr}}:{{obj.port_f}}/{{cam.slug}}/embed.html?autoplay=false"></iframe>
+      </div>
+      <div class="bg-transparent" style="height: 20px;">
+        <div class="row">{% if request.user.is_authenticated %}
+          <div class="col text-left ">
+            <a class="badge badge-pill badge-primary text-light" target="_blank" href="/detail/{{cam.id}}">
+              <i class="fa fa-calendar pr-1"></i>
+              <span class="title hidden-xs">Архив</span>
+            </a>    
+          </div>
+          <div class="col text-right">
+            {% for grp in cam.groups.all %}
+                <a class="badge badge-pill badge-primary" href="{% url 'group_page' grp.slug %}">{{ grp.title }}</a> 
+            {% endfor %}
+          </div>
+          {% endif %}</div>
+      </div>
+    </div>
+  </div>

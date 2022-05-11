@@ -1,17 +1,38 @@
+{% load staticfiles %}
 <!doctype html>
 <html lang="ru">
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <style>
+      .body-style {
+        background-color: rgb(32, 32, 32);
+        background-image: linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black), linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black), linear-gradient(to bottom, rgb(8, 8, 8), rgb(32, 32, 32));
+        background-size: 10px 10px, 10px 10px, 10px 5px;
+        background-position: 0px 0px, 5px 5px, 0px 0px;
+      }
+    </style>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>{% block title%} Авторизация | HydraProject {% endblock %}</title>
+    <title>{% block title%} Авторизация {% endblock %}</title>
   </head>
-  <body>
-
- <div class="card" style="display: block; margin: 0 auto; text-align: center; max-width: 600px; margin-top: 50px;">
+  
+  <body class="body-style">
+  <div class="container">
+  <div class="text-center mt-5 mb-4 rounded-pill" style="display: block; margin: 0 auto; text-align: center; max-width: 340px; margin-top: 50px;">
+    <div class="p-2 w-100 bd-highlight" >
+      <img src="{% static "img/camera.png" %}" alt="" width="150" height="auto">
+    </div>
+  </div>
+  <div class="text-center mt-2 mb-2" style="display: block; margin: 0 auto; text-align: center; max-width: 340px; margin-top: 50px;">
+    <div class="p-2 w-100 bd-highlight" >
+      <h3 href="/" class="text-light">
+        ONLINE | КЭСКО 
+      </h3>
+    </div>
+  </div>
+ <div class="card" style="display: block; margin: 0 auto; text-align: center; max-width: 340px; margin-top: 10px;">
   <div class="card-header">
     Авторизация
   </div>
@@ -19,9 +40,11 @@
     <form id="add_form" method="POST">
             {% csrf_token %}
             {{form}}
-            <button form="add_form" type="submit" class="btn btn-outline-success mt-5">Войти</button>
+            <button form="add_form" type="submit" class="btn btn-lg btn-outline-success mt-5">Войти</button>
     </form>
   </div>
+  </div>
+  
 </div> 
-
+<p class="mt-5 mb-3 text-muted text-center">Powered by <a href="#"> Razdolbay </a>© 2021-2022</p>
 </body>

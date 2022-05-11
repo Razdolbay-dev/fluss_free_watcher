@@ -55,7 +55,7 @@ class AuthUserForm(AuthenticationForm, forms.ModelForm):
 class UpdateUserForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'members', 'ip_address', 'is_staff','is_superuser', 'is_active', 'dvr','update_cam')
+        fields = ('username','email','members','ip_address','count_addr','is_staff','is_superuser', 'is_active', 'dvr','update_cam')
         
 class UpdatePassword(forms.ModelForm):
     class Meta:
