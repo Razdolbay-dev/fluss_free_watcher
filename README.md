@@ -32,3 +32,8 @@ pip3 install -r req.txt
 Пароль: letmein!
 ```
 https://t.me/fant1kus <-- Мой телеграмм. Если что , то сюда
+
+Далее по интсрукции 
+```
+https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-18-04-ru
+```
