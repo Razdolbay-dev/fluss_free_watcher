@@ -15,7 +15,6 @@
 Выполняем поэтапно:
 ```sh
 pip3 install -r req.txt
-rm db.sqlite3
 ./manage.py makemigrations
 ./manage.py migrate
 ./manage.py createsuperuser
