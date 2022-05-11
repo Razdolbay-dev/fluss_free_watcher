@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title%} {{get_cameras.title}} {% endblock %}
+{% block content %}
+<div class="container-fluid mt-2" >
+  <div class="embed-responsive embed-responsive-16by9">
+    <iframe style="max-width: 100%; max-height: 85%;" frameborder='0' allowfullscreen src="http://{{obj.ip_addr}}:{{obj.port_f}}/{{get_cameras.slug}}/embed.html{% if request.user.dvr or request.user.is_superuser %}?dvr=true{% else %} {% endif %}"></iframe>
+  </div>
+</div>
+
+{% endblock %}

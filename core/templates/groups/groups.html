@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %} Группы {% endblock %}
+{% block content %}
+
+{% load staticfiles %}
+{% if request.user.is_authenticated and request.user.is_superuser  %}
+<!--MessageBoxes-->
+{% if messages  %} 
+<div class="alert alert-success mt-2" role="alert">
+  {% for m in messages %}
+    {{m}}
+  {% endfor %}
+</div>
+{% endif %}
+
+<!--Начало блока Update-->
+{% if update %}
+<h3 class="mt-2">Редактирование : {{get_group.title}}<h3>
+    <form id="update_data" method="post">
+        {% csrf_token %}
+        {{form}}
+    </form>
+<a class="btn btn-primary mt-2 float-right" href="{% url 'groups' %}">Вернуться назад</a>
+<button form="update_data" type="submit" class="btn btn-success mt-2">Обновить</button>
+{% else %}
+<!--Конец блока Update-->
+<!--List Groups-->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Добавить группу
+</button>
+
+<table class="table table-striped mt-2">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Имя</th>
+        <th scope="col">Описание</th>
+        <th scope="col">Редактировать</th>
+        <th scope="col">Удалить</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for grp in list_groups%}
+              <tr>
+                <th scope="row">{{grp.id}}</th>
+                <td><a href="{% url 'group_page' grp.slug %}">{{grp.title|truncatechars:"30"}}</a></td>
+                <td>{{grp.description|truncatechars:"30"}}</td>
+                <td><a class="badge badge-success" href="{% url 'editgrp' grp.id %}">Редактировать</a></td>
+                <td>
+                  <form id="delete{{grp.id}}" action="{% url 'delgrp' grp.id %}" method="post"> {% csrf_token %} </form>
+                  <a href="javascript:void()" onclick="delete_question{{grp.id}}()">Удалить?</a>
+                  <script>
+                    function delete_question{{grp.id}}() {
+                      if (confirm("Хорошо подумал?")) {
+                        document.getElementById('delete{{grp.id}}').submit()
+                      }
+                    }
+                  </script>
+                </td>
+              </tr>
+        {% endfor %} 
+    </tbody>
+</table>
+
+{% include 'includes/modal.html' %}
+{% endif %}
+{% else %}
+{% include 'includes/error.html' %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,127 @@
+{% load staticfiles %}<!doctype html>
+<html lang="en">
+  <head>
+  	<title>Камеры Online | КЭСКО </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="{% static 'css/style.css'%}">
+  </head>
+  <body>
+    
+		<div class="wrapper d-flex align-items-stretch">
+			<nav id="sidebar" class="active ">
+				<!--
+          <h1 class=""><a href="/" class="logo_custom"><i class="bi bi-shield-check logo_custom"></a></h1>
+        -->
+        <h1 class="mt-5"><a href="/" class="logo_custom"><img src="{% static 'img/camera.png'%}" width="52" height="52" alt=""></a></h1>
+        <div class="footer">
+          <span>
+					  Online | КЭСКО
+					</span>
+        </div>
+        <ul class="list-unstyled components mb-5 mt-5">
+          
+          <li>{% url 'home' as url_home %}
+            <a href="{{url_home}}"><span class="fa fa-camera"></span> Камеры</a>
+          </li>
+            {% if request.user.is_authenticated and request.user.is_superuser  %}  
+            <li class="dropdown">
+              <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="bi bi-person-circle"></span> Меню
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="pl-2 dropdown-item text-dark" href="{% url 'users' %}"> <i class="bi bi-person-fill"></i> Пользователи</a>
+                <a class="pl-2 dropdown-item text-dark" href="{% url 'groups' %}"><i class="bi bi-person-video2"></i> Группы</a>
+                <a class="pl-2 dropdown-item text-dark" href="{% url 'cameras' %}"><i class="bi bi-camera-video"></i> Камеры</a> 
+                <div class="dropdown-divider"></div>
+                <a class="pl-2 dropdown-item text-dark" href="{% url 'configs' %}"><i class="bi bi-gear"></i> Настройки</a>
+              </div>
+            </li>
+            <li>
+              <a href="{% url 'logout' %}"><span class="bi bi-door-open-fill"></span> Выйти</a>
+            </li>
+            {%elif request.user.is_authenticated and request.user.is_staff%}
+            <li>
+              <a href="{% url 'logout' %}"><span class="bi bi-door-open-fill"></span> Выйти</a>
+            </li>            
+          {% endif %}
+          {% if request.user.is_authenticated %} 
+          <li>
+            {% for grp in user.members.all %}{% url 'myhome_page' grp.slug as url_myhome_page %}
+              <a href="{% url 'myhome_page' grp.slug %}"><span class="bi bi-house-heart"></span> Мой двор</a> 
+            {% endfor %}</li>
+            {% else %}
+          <li>
+              {% url 'myhome' as url_myhome %}
+              <a href="{{url_myhome}}"><span class="bi bi-house-heart"></span> Мои камеры</a>
+          </li>
+          <li>{% url 'auth' as url_auth %}
+            <a href="{{url_auth}}"><span class="bi bi-key"></span> Войти</a>
+          </li>
+          {% endif %}
+        </ul>
+        <div class="footer">
+        	<p>
+					  Камеры городского видеонаблюдения 
+					</p>
+          <p>
+					  Online | КЭСКО &copy;<script>document.write(new Date().getFullYear());</script>
+					</p>
+          <p>
+					  Все права защищены!
+					</p>
+            
+        </div>
+    	</nav>
+        <!-- Page Content <div id="content" class="p-4 p-md-5"> -->
+      <div id="content">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <div class="container-fluid">
+            <div class="d-flex bd-highlight">
+              
+              <div class="p-2 flex-shrink-1 bd-highlight align-items-end">
+                <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                  <i class="fa fa-bars"></i>
+                  <span class="sr-only">Toggle Menu</span>
+                </button>
+              </div>
+              <div class="p-2 w-100 bd-highlight">
+                <a class="navbar-brand" href="/">
+                  ONLINE | КЭСКО  <img src="{% static 'img/l.png'%}" width="32" height="32" class="d-inline-block align-top" alt="">
+                </a>
+              </div>
+            </div>
+            
+            
+          </div>
+        </nav>
+        
+        <div class="container-fluid mt-2" >
+          {% block content %}{% endblock %}
+        </div>
+        <div id="footer" >
+          <div class="row mt-5">
+            <div class="col-md-12 text-center">
+              <p class="copyright"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                Камеры городского видеонаблюдения Online | КЭСКО &copy;<script>document.write(new Date().getFullYear());</script> |  Все права защищены!
+              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+            </div>
+          </div>
+        </div>
+      </div>
+		</div>
+
+    <script src="{% static 'js/jquery.min.js'%}"></script>
+    <script src="{% static 'js/popper.js'%}"></script>
+    <script src="{% static 'js/bootstrap.min.js'%}"></script>
+    <script src="{% static 'js/main.js'%}"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title%} {{group.title}} {% endblock %}
+{% block content %}
+{% if request.user.is_authenticated %}
+<div class="camera">
+<div class="row">
+{% for cam in group.tags.all %}  
+{% include  'includes/cam_template.html'%}
+{% endfor %}
+</div></div>
+{% else %}
+{% include 'includes/error.html' %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %} Добавить хранилище {% endblock %}
+{% block content %}
+
+{% load staticfiles %}
+{% if request.user.is_authenticated and request.user.is_superuser  %}
+<div class="container-md">
+<div class="card">
+  <div class="card-header">
+    Добавить хранилище
+  </div>
+  <div class="card-body">
+    <form id="upd_data" method="post">
+        {% csrf_token %}
+        {{form}}
+        <a class="btn btn-primary mt-2 float-right" href="{% url 'configs' %}">Вернуться назад</a>
+        <button form="upd_data" type="submit" class="btn btn-success mt-2">Добавить</button>
+      </form>
+  </div>
+</div>
+</div>
+</div>
+
+{% else %}
+{% include 'includes/error.html' %}
+{% endif %}
+{% endblock %}
