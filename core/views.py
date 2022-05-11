@@ -29,6 +29,7 @@ def page_not_found_view(request, exception):
 
 # Create your views here.
 def home(request):
+<<<<<<< HEAD
     
     #list_cameras = Cameras.objects.all()
     list_cameras_pub = Cameras.objects.filter(camera_type='PU')[:8]
@@ -43,6 +44,16 @@ def home(request):
         'list_cameras_pub':list_cameras_pub,
         'list_cameras_priv':list_cameras_priv,
         'obj':obj,
+=======
+    list_cameras = Cameras.objects.all()
+    for obj in Configs.objects.filter(id=1):
+        ip = obj.ip_addr
+        port = obj.port_f
+        
+    context = {
+        'list_cameras':list_cameras,
+        'obj':obj
+>>>>>>> 1ef451af4f5905d65e183eafb27e51c56ea2f1e7
     }
     template = 'index.html'
 
@@ -79,6 +90,14 @@ def home(request):
             return render(request, template, context)
     else:
         return render(request, template, context)
+<<<<<<< HEAD
+=======
+    
+#class DVR(DetailView):
+#    model = Cameras
+#    template_name = 'cameras/detail.html'
+#    context_object_name = 'get_cameras'
+>>>>>>> 1ef451af4f5905d65e183eafb27e51c56ea2f1e7
 
 def DVR(request,id):
     get_cameras = Cameras.objects.get(id=id)
@@ -93,6 +112,7 @@ def DVR(request,id):
 
     return render(request, template, context)
 
+<<<<<<< HEAD
 def Cam(request,id):
     get_cameras = Cameras.objects.get(id=id)
     for obj in Configs.objects.filter(id=1):
@@ -106,6 +126,8 @@ def Cam(request,id):
 
     return render(request, template, context)
 
+=======
+>>>>>>> 1ef451af4f5905d65e183eafb27e51c56ea2f1e7
 
 class CustomSuccessMessageMixin:
     @property

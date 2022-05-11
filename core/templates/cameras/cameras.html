@@ -57,7 +57,11 @@
         }</style>
         {% for cam in list_cameras%}
               <tr>
+<<<<<<< HEAD
                 <th scope="row"><span class="dot"></span></th>
+=======
+                <th scope="row"><img src="{% static "img/onair.png" %}" width="45" height="30" class="d-inline-block align-top" alt=""></th>
+>>>>>>> 1ef451af4f5905d65e183eafb27e51c56ea2f1e7
                 <td><a href="{% url 'detail' cam.id %}">{{cam.title|truncatechars:"30"}}</a></td>
                 <td>{{cam.slug|truncatechars:"30"}}</td>
                 <td>{{cam.url|truncatechars:"30"}}</td>

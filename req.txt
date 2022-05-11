@@ -16,5 +16,9 @@ South==1.0.2
 sqlparse==0.3.1
 transliterate==1.10.2
 urllib3==1.25.10
+<<<<<<< HEAD
 gunicorn
 psycopg2-binary
+=======
+gunicorn
+>>>>>>> 1ef451af4f5905d65e183eafb27e51c56ea2f1e7

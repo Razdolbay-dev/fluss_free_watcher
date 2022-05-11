@@ -9,10 +9,15 @@ from .views import *
 
 urlpatterns = [
     path('', views.home, name='home'),
+<<<<<<< HEAD
     path('public_all/', views.public_all, name='publics'),
     path('privat_all/', views.privat_all, name='privats'),
     #Cameras
     path('cam/<int:id>', views.Cam, name='cam'),
+=======
+    #Cameras
+    #path('detail/<str:slug>', DVR.as_view(), name='detail'),
+>>>>>>> 1ef451af4f5905d65e183eafb27e51c56ea2f1e7
     path('detail/<int:id>', views.DVR, name='detail'),
     path('cameras/', AddCamera.as_view(), name='cameras'),
     path('editcam/<str:slug>', UpdateCamera.as_view(), name='editcam'),
