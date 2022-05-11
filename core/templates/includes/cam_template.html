@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <div class="col col-xl- col-lg-6 col-sm-8" style="max-width: 330px; width: auto; margin: 0 auto;" >
     <div class="card bg-transparent mb-4" style="border: 0ch;">
       <h6><a href="/cam/{{cam.id}}">{{cam.title|truncatechars:"30"}}</a></h6>
@@ -23,20 +22,3 @@
       </div>
     </div>
   </div>
-=======
-<div class="col">
-    <figure class="figure shadow p-3 mb-5 bg-white rounded">
-    <!--figure class="figure"-->
-        <h6><a href="/detail/{{cam.id}}">{{cam.title|truncatechars:"30"}}</a></h6>
-        <div>
-            <iframe style="width: 380px; height: 240px;" frameborder='0' 
-            allowfullscreen src="http://{{obj.ip_addr}}:{{obj.port_f}}/{{cam.slug}}/embed.html?autoplay=false">
-            </iframe>
-        </div>
-        {% for grp in cam.groups.all %}
-            <a class="badge badge-pill badge-primary" href="{% url 'group_page' grp.slug %}">{{ grp.title }}</a> 
-        {% endfor %}
-        
-    </figure>
-</div>
->>>>>>> 1ef451af4f5905d65e183eafb27e51c56ea2f1e7

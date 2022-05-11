@@ -26,10 +26,7 @@ SECRET_KEY = 'h82(wo5f1v#=#!_^=_^ru%afjs1qg1qq#or5xb@vh&feoch4y)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 1ef451af4f5905d65e183eafb27e51c56ea2f1e7
 ALLOWED_HOSTS = ['*','localhost']
 
 #AUTHENTICATION_BACKENDS = ['ipauth.backend.RangeBackend']
